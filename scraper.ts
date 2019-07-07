@@ -15,7 +15,6 @@ sqlite3.verbose();
 
 const DevelopmentApplicationMainUrl = "https://eservices.loxtonwaikerie.sa.gov.au/eservice/daEnquiryInit.do?nodeNum=2811";
 const DevelopmentApplicationSearchUrl = "https://eservices.loxtonwaikerie.sa.gov.au/eservice/daEnquiry.do?number=&lodgeRangeType=on&dateFrom={0}&dateTo={1}&detDateFromString=&detDateToString=&streetName=&suburb=0&unitNum=&houseNum=0%0D%0A%09%09%09%09%09&planNumber=&strataPlan=&lotNumber=&propertyName=&searchMode=A&submitButton=Search";
-const CommentUrl = "mailto:requests@waikerie.com";
 
 declare const process: any;
 
@@ -25,7 +24,7 @@ async function initializeDatabase() {
     return new Promise((resolve, reject) => {
         let database = new sqlite3.Database("data.sqlite");
         database.serialize(() => {
-            database.run("create table if not exists [data] ([council_reference] text primary key, [address] text, [description] text, [info_url] text, [comment_url] text, [date_scraped] text, [date_received] text)");
+            database.run("create table if not exists [data] ([council_reference] text primary key, [address] text, [description] text, [info_url] text, [date_scraped] text, [date_received] text)");
             resolve(database);
         });
     });
@@ -35,13 +34,12 @@ async function initializeDatabase() {
 
 async function insertRow(database, developmentApplication) {
     return new Promise((resolve, reject) => {
-        let sqlStatement = database.prepare("insert or replace into [data] values (?, ?, ?, ?, ?, ?, ?)");
+        let sqlStatement = database.prepare("insert or replace into [data] values (?, ?, ?, ?, ?, ?)");
         sqlStatement.run([
             developmentApplication.applicationNumber,
             developmentApplication.address,
             developmentApplication.description,
             developmentApplication.informationUrl,
-            developmentApplication.commentUrl,
             developmentApplication.scrapeDate,
             developmentApplication.receivedDate
         ], function(error, row) {
@@ -111,7 +109,6 @@ async function getResults(dateFrom: moment.Moment, dateTo: moment.Moment) {
                 address: address,
                 description: ((description === "") ? "No Description Provided" : description),
                 informationUrl: DevelopmentApplicationMainUrl,
-                commentUrl: CommentUrl,
                 scrapeDate: moment().format("YYYY-MM-DD"),
                 receivedDate: receivedDate.isValid() ? receivedDate.format("YYYY-MM-DD") : ""
             });
@@ -151,7 +148,7 @@ async function main() {
 
     let monthCount = moment().year() * 12 + moment().month() - (2012 * 12 + 1);  // the first recorded development application is in 2012
     let randomMonth = getRandom(1, monthCount + 1)
-    
+
     developmentApplications = await getResults(moment().subtract(randomMonth + 1, <moment.unitOfTime.DurationConstructor> "months"), moment().subtract(randomMonth, <moment.unitOfTime.DurationConstructor> "months"));
     console.log(`Inserting ${developmentApplications.length} development application(s) into the database.`);
     for (let developmentApplication of developmentApplications)
