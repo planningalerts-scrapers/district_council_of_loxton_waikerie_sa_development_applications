@@ -1,1 +1,1 @@
-This is a scraper that runs on [Morph](https://morph.io).  It scrapes lodged development applications from the South Australian [District Council of Loxton Waikerie web site](https://www.loxtonwaikerie.sa.gov.au).
+This scraper has been merged into planningalerts-scrapers/multiple_civica (loxton_waikerie)
